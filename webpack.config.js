@@ -1,47 +1,52 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-module.exports = {
-  entry: './src/index.js', // точка входа для JS
+// Получаем путь к текущей директории
+const __dirname = new URL('.', import.meta.url).pathname;
+
+export default {
+  entry: './src/js/index.js',
   output: {
-    filename: 'bundle.js', // итоговый файл с кодом
-    path: path.resolve(__dirname, 'dist'), // директория для вывода
-    publicPath: '/my-project-template/',
+    filename: 'bundle.js',
+    path: path.resolve(process.cwd(), 'dist'),
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
+        use: 'babel-loader',
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'], // для обработки CSS
+        use: [MiniCssExtractPlugin.loader, 'css-loader'], // Правильная конфигурация для стилей
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource', // для обработки изображений
+        type: 'asset/resource',
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset/inline', // для обработки шрифтов
+        type: 'asset/inline',
       },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html', // шаблон для HTML
+      template: './src/index.html',
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'styles.css', // Генерируем отдельный CSS файл
     }),
   ],
-  devServer: {
-    static: path.resolve(__dirname, 'dist'), // теперь используется static вместо contentBase
-    open: true, // автоматически открывать браузер
-    port: 3000, // порт для сервера
-  },  
   resolve: {
-    extensions: ['.js', '.css'], // разрешаем расширения для импорта
+    extensions: ['.js', '.css'],
+  },
+  devServer: {
+    static: path.resolve(process.cwd(), 'dist'),
+    open: true,
+    port: 3000,
+    hot: true, // Включаем поддержку горячей перезагрузки
   },
 };
