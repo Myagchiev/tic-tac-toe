@@ -126,7 +126,7 @@ const nextTurn = (row, col) => {
 
     if (currentPlayer === computer && !gameOver) {
       setTimeout(() => {
-        const [row, col] = computer.makeMove(gameOver);
+        const [row, col] = computer.makeMove();
         if (row !== null && col !== null) {
           nextTurn(row, col);
           displayController.renderBoard();

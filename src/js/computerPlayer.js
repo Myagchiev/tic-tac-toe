@@ -15,7 +15,7 @@ const ComputerPlayer = (mark) => {
       for (let col = 0; col < 3; col++) {
         if (board[row][col] === null) {
           board[row][col] = currentMark;
-          if (Gameboard.checkWinner(board) === currentMark) {
+          if (Gameboard.checkWinner() === currentMark) {
             board[row][col] = null;
             return [row, col];
           }
@@ -25,6 +25,7 @@ const ComputerPlayer = (mark) => {
     }
     return null;
   };
+  
 
   // функция для поиска хода, который блокирует игрока
   const findBlockingMove = (board) => {
@@ -34,21 +35,27 @@ const ComputerPlayer = (mark) => {
 
   // функция для поиска лучшего хода
   const findBestMove = (board) => {
+    const winningMove = findWinningMove(board, mark);
+    if (winningMove) return winningMove;
+  
+    const blockingMove = findBlockingMove(board);
+    if (blockingMove) return blockingMove;
+  
+    if (board[1][1] === null) return [1, 1];
+  
+    // 4. Захват углов
     const corners = [
       [0, 0],
       [0, 2],
       [2, 0],
       [2, 2],
     ];
-
-    // занимаем любой свободный угол
     for (const [row, col] of corners) {
       if (board[row][col] === null) {
         return [row, col];
       }
     }
-
-    // если нет углов, делаем случайный ход
+  
     return findRandomMove(board);
   };
 
@@ -68,33 +75,36 @@ const ComputerPlayer = (mark) => {
   };
 
    // если игра завершена, не делаем ход
-  const makeMove = (gameOver) => {
-    if (gameOver) return null;
-
+   const makeMove = () => {
+    if (Gameboard.checkWinner() || Gameboard.checkDraw()) {
+      return null;
+    }
+  
     const boardCopy = Gameboard.board.map((row) => [...row]);
-
+  
     // случайный выбор стратегии
     const strategies = ['win', 'block', 'best', 'random'];
     const strategy = strategies[Math.floor(Math.random() * strategies.length)];
-
+  
     if (strategy === 'win') {
       const winningMove = findWinningMove(boardCopy, mark);
       if (winningMove) return winningMove;
     }
-
+  
     if (strategy === 'block') {
       const blockingMove = findBlockingMove(boardCopy);
       if (blockingMove) return blockingMove;
     }
-
+  
     if (strategy === 'best') {
       return findBestMove(boardCopy);
     }
-
+  
     return findRandomMove(boardCopy);
   };
-
+  
   return { mark, makeMove };
+  
 };
 
 export { Player, ComputerPlayer };
